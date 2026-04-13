@@ -1,2 +1,2 @@
 # complywhistle-help
-Internal help and Q&amp;A knowledge base for ComplyWhistle users
+Internal help and Q&A knowledge base for ComplyWhistle users
