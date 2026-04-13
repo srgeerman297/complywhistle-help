@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ComplyWhistle Help</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <h1>ComplyWhistle Help</h1>
+        <p>Ask a question about how to use ComplyWhistle.</p>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="chat-panel">
+        <div id="chat-box" class="chat-box" aria-live="polite">
+          <div class="message bot">
+            Hi. I can help with ComplyWhistle user questions such as creating AML Deeds, adding POIs, sending links, understanding statuses, findings, reminders, and troubleshooting.
+          </div>
+        </div>
+
+        <div class="suggestions" aria-label="Suggested questions">
+          <button type="button" class="suggestion-chip" data-question="How do I create an AML Deed?">Create AML Deed</button>
+          <button type="button" class="suggestion-chip" data-question="How do I add a POI?">Add a POI</button>
+          <button type="button" class="suggestion-chip" data-question="How do I send the POI link?">Send POI link</button>
+          <button type="button" class="suggestion-chip" data-question="What does Pending mean?">Pending status</button>
+        </div>
+
+        <form id="chat-form" class="chat-form">
+          <label for="user-input" class="sr-only">Ask a question</label>
+          <input
+            type="text"
+            id="user-input"
+            placeholder="Type your question here..."
+            autocomplete="off"
+            required
+          />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
