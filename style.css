@@ -372,6 +372,18 @@ body {
   filter: brightness(1.08);
 }
 
+.site-footer {
+  margin-top: 26px;
+  text-align: center;
+}
+
+.site-footer p {
+  margin: 0;
+  color: rgba(214, 227, 255, 0.62);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
