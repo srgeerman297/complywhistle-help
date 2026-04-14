@@ -374,12 +374,20 @@ body {
 
 .site-footer {
   margin-top: 26px;
-  text-align: center;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  padding: 0 20px 8px;
 }
 
 .site-footer p {
   margin: 0;
-  color: rgba(214, 227, 255, 0.62);
+  width: 100%;
+  text-align: center;
+  color: rgba(119, 136, 175, 0.78);
   font-size: 13px;
   letter-spacing: 0.02em;
 }
