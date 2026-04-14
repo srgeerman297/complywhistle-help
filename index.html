@@ -62,15 +62,12 @@
 
         <form id="chat-form" class="chat-form">
           <label for="user-input" class="sr-only">Ask a question</label>
-          <input
-            type="text"
-            id="user-input"
-            placeholder="Ask Agatha AI (Beta) a question..."
-            autocomplete="off"
-            required
-          />
-          <button type="submit">Send</button>
+          <input type="text" id="user-input" placeholder="Ask Agatha AI (Beta) a question..." autocomplete="off" required />
+          <button type="button" id="mic-button" class="mic-button" aria-label="Use voice input" aria-pressed="false" title="Use voice input">Mic</button>
+          <button type="submit" class="send-button">Send</button>
         </form>
+
+        <p id="assistant-status" class="assistant-status">Voice input ready. Click Mic to speak your question.</p>
       </section>
     </main>
 
