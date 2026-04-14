@@ -7,16 +7,46 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-shell">
-    <header class="app-header">
-      <div>
-        <h1>Agatha AI (Beta)</h1>
-        <p>Ask a question about how to use ComplyWhistle.</p>
+  <div class="ambient ambient-left"></div>
+  <div class="ambient ambient-right"></div>
+  <div class="ambient ambient-top"></div>
+
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand-pill">
+        <span class="brand-mark">A</span>
+        <span class="brand-name">Agatha AI</span>
+        <span class="beta-badge">Beta</span>
       </div>
+      <a class="topbar-link" href="#assistant">Open assistant</a>
     </header>
 
-    <main class="app-main">
-      <section class="chat-panel">
+    <main>
+      <section class="hero-section">
+        <p class="eyebrow">ComplyWhistle operator help</p>
+        <h1>Talk to Agatha AI — Smarter, Faster, Better</h1>
+        <p class="hero-copy">
+          A handbook-driven assistant for ComplyWhistle users who need fast guidance on AML Deeds,
+          POIs, findings, reminders, and reporting workflows.
+        </p>
+
+        <div class="orb-wrapper" aria-hidden="true">
+          <div class="orb">
+            <div class="orb-core"></div>
+          </div>
+        </div>
+
+        <a class="hero-action" href="#assistant">Ask Agatha</a>
+      </section>
+
+      <section id="assistant" class="assistant-card">
+        <div class="assistant-card-header">
+          <div>
+            <h2>Agatha AI (Beta)</h2>
+            <p>Ask a question about how to use ComplyWhistle.</p>
+          </div>
+        </div>
+
         <div id="chat-box" class="chat-box" aria-live="polite">
           <div class="message bot">
             Hi. I am Agatha AI (Beta). I can help with ComplyWhistle user questions such as creating AML Deeds, adding POIs, sending links, understanding statuses, findings, reminders, and troubleshooting.
