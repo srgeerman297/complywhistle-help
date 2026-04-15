@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agatha AI (Beta)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="ambient ambient-left"></div>
+  <div class="ambient ambient-right"></div>
+  <div class="ambient ambient-top"></div>
+
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand-pill">
+        <span class="brand-mark">A</span>
+        <span class="brand-name">Agatha AI</span>
+        <span class="beta-badge">Beta</span>
+      </div>
+      <a class="topbar-link" href="#assistant">Open assistant</a>
+    </header>
+
+    <main>
+      <section class="hero-section">
+        <p class="eyebrow">ComplyWhistle operator help</p>
+        <h1>Talk to Agatha AI — Smarter, Faster, Better</h1>
+        <p class="hero-copy">
+          A handbook-driven assistant for ComplyWhistle users who need fast guidance on AML Deeds,
+          POIs, findings, reminders, and reporting workflows.
+        </p>
+
+        <div class="orb-wrapper" aria-hidden="true">
+          <div class="orb">
+            <div class="orb-core"></div>
+          </div>
+        </div>
+
+        <a class="hero-action" href="#assistant">Ask Agatha</a>
+      </section>
+
+      <section id="assistant" class="assistant-card">
+        <div class="assistant-card-header">
+          <div>
+            <h2>Agatha AI (Beta)</h2>
+            <p>Ask a question about how to use ComplyWhistle.</p>
+          </div>
+        </div>
+
+        <div id="chat-box" class="chat-box" aria-live="polite">
+          <div class="message bot">
+            <div class="message-text">
+              Hi. I am Agatha AI (Beta). I can help with ComplyWhistle user questions such as creating AML Deeds, adding POIs, sending links, understanding statuses, findings, reminders, and troubleshooting.
+            </div>
+          </div>
+        </div>
+
+        <div class="suggestions" aria-label="Suggested questions">
+          <button type="button" class="suggestion-chip" data-question="How do I create an AML Deed?">Create AML Deed</button>
+          <button type="button" class="suggestion-chip" data-question="How do I add a POI?">Add a POI</button>
+          <button type="button" class="suggestion-chip" data-question="How do I send the POI link?">Send POI link</button>
+          <button type="button" class="suggestion-chip" data-question="What does Pending mean?">Pending status</button>
+        </div>
+
+        <form id="chat-form" class="chat-form">
+          <label for="user-input" class="sr-only">Ask a question</label>
+          <input type="text" id="user-input" placeholder="Ask Agatha AI (Beta) a question..." autocomplete="off" required />
+          <button type="button" id="mic-button" class="mic-button" aria-label="Use voice input" aria-pressed="false" title="Use voice input">Mic</button>
+          <button type="submit" class="send-button">Send</button>
+        </form>
+
+        <p id="assistant-status" class="assistant-status">Voice input ready. Click Mic to speak your question.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 AXIOMA Corporate Services VBA. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
