@@ -21,7 +21,11 @@ const PHRASE_SYNONYMS=[
   ["ellipsis menu","options menu"],
   ["mail icon","email icon"],
   ["bell icon","notifications icon"],
-  ["refresh button","sync button"]
+  ["refresh button","sync button"],
+  ["poi url","person of interest link"],
+  ["poi link","person of interest link"],
+  ["send again","resend"],
+  ["copy again","resend"]
 ];
 
 const TOKEN_SYNONYMS={
@@ -47,8 +51,30 @@ const TOKEN_SYNONYMS={
   actions:["buttons","icons","menu"],
   page:["limit","results"],
   customer:["client"],
-  customers:["clients"]
+  customers:["clients"],
+  url:["link","copy"],
+  link:["url","copy"],
+  resend:["again","repeat","copy","link"],
+  again:["resend","repeat"],
+  copy:["link","url"]
 };
+
+const INTENT_PAIRS=[
+  ["resend","link"],
+  ["copy","link"],
+  ["send","email"],
+  ["download","report"],
+  ["download","documents"],
+  ["download","package"],
+  ["silence","notifications"],
+  ["sync","shufti"],
+  ["create","deed"],
+  ["add","person"],
+  ["status","approved"],
+  ["status","reported"],
+  ["status","findings"],
+  ["status","pending"]
+];
 
 function normalize(text){
   return String(text||"")
@@ -168,6 +194,15 @@ function tokenSetScore(queryTokens,targetTokens){
   return score;
 }
 
+function countStrongMatches(queryTokens,targetTokens){
+  let count=0;
+  for(const queryToken of queryTokens){
+    const strong=targetTokens.some(targetToken=>tokenSimilarity(queryToken,targetToken)>=0.9);
+    if(strong) count+=1;
+  }
+  return count;
+}
+
 function buildEntryCorpus(entry){
   const questions=Array.isArray(entry.questions)?entry.questions:[];
   const keywords=Array.isArray(entry.keywords)?entry.keywords:[];
@@ -180,6 +215,16 @@ function buildEntryCorpus(entry){
     keywordNormals:keywords.map(keyword=>normalizeWithSynonyms(keyword)),
     ngrams:getCharacterNgrams(joined)
   };
+}
+
+function scoreIntentPairs(queryTokens,targetTokens){
+  let score=0;
+  for(const [left,right] of INTENT_PAIRS){
+    const queryHasPair=queryTokens.includes(left)&&queryTokens.includes(right);
+    const targetHasPair=targetTokens.includes(left)&&targetTokens.includes(right);
+    if(queryHasPair&&targetHasPair) score+=24;
+  }
+  return score;
 }
 
 function scoreMatch(userQuestion,entry){
@@ -202,6 +247,12 @@ function scoreMatch(userQuestion,entry){
   score+=tokenSetScore(queryTokens,corpus.tokens);
   score+=jaccardSimilarity(queryTokens,corpus.tokens)*30;
   score+=jaccardSimilarity(queryNgrams,corpus.ngrams)*24;
+  score+=scoreIntentPairs(queryTokens,corpus.tokens);
+
+  const strongMatchCount=countStrongMatches(queryTokens,corpus.tokens);
+  const coverage=queryTokens.length?strongMatchCount/queryTokens.length:0;
+  score+=strongMatchCount*8;
+  score+=coverage*40;
 
   if(queryTokens.length<=4){
     const shortIntentHits=queryTokens.filter(token=>corpus.tokens.includes(token)).length;
@@ -227,7 +278,7 @@ function getBestEntry(question){
     }
   }
   if(!best||bestScore<24) return null;
-  if(secondBest&&bestScore<secondBest*1.08&&bestScore<42) return null;
+  if(secondBest&&bestScore<secondBest*1.12&&bestScore<52) return null;
   return best;
 }
 
