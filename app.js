@@ -419,7 +419,7 @@ function addMessage(text,sender,relatedQuestions=[]){
     relatedWrap.className="related-questions";
     const label=document.createElement("div");
     label.className="related-label";
-    label.textContent="Related questions";
+    label.textContent=sender==="bot"&&text.startsWith("Did you mean")?"Choose one" : "Related questions";
     relatedWrap.appendChild(label);
     relatedQuestions.forEach(questionText=>{
       const button=document.createElement("button");
@@ -469,7 +469,7 @@ function askQuestion(question){
   addMessage(cleaned,"user");
   const match=getBestEntry(cleaned);
   if(match.ambiguous){
-    addMessage("I found a few close topics. Pick the one that matches what you mean.","bot",match.options);
+    addMessage("Did you mean one of these?", "bot", match.options);
     return;
   }
   const bestEntry=match.entry;
