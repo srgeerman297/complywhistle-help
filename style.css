@@ -419,7 +419,8 @@ body {
 }
 
 .mic-button,
-.send-button {
+.send-button,
+.whatsapp-support-button {
   min-height: 58px;
   border: none;
   border-radius: 16px;
@@ -465,9 +466,42 @@ body {
   box-shadow: 0 0 28px rgba(47, 107, 255, 0.34);
 }
 
+.whatsapp-support-button {
+  min-width: 250px;
+  padding: 0 24px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  box-shadow: 0 0 24px rgba(34, 197, 94, 0.26);
+}
+
+.human-support {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 173, 255, 0.16);
+  background: linear-gradient(180deg, rgba(11, 22, 55, 0.78), rgba(9, 18, 46, 0.7));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.human-support-copy h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.human-support-copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .send-button:hover,
 .topbar-link:hover,
-.hero-action:hover {
+.hero-action:hover,
+.whatsapp-support-button:hover {
   filter: brightness(1.08);
 }
 
@@ -557,6 +591,16 @@ body {
 
   .message {
     max-width: 92%;
+  }
+
+  .human-support {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .whatsapp-support-button {
+    width: 100%;
+    min-width: 0;
   }
 }
 
@@ -755,7 +799,8 @@ body {
   }
 
   .mic-button,
-  .send-button {
+  .send-button,
+  .whatsapp-support-button {
     width: 100%;
     min-height: 52px;
   }
@@ -769,6 +814,11 @@ body {
     grid-area: send;
     min-width: 0;
     padding: 0 18px;
+  }
+
+  .human-support {
+    margin-top: 14px;
+    padding: 14px;
   }
 
   .assistant-status {

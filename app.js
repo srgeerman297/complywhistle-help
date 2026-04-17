@@ -3,6 +3,10 @@ let recognition=null;
 let isListening=false;
 let micButton=null;
 let userInput=null;
+let lastUserQuestion="";
+
+const WHATSAPP_NUMBER="2977440399";
+const WHATSAPP_DEFAULT_MESSAGE="Hi AXIOMA, I need help with ComplyWhistle.";
 
 const STOP_WORDS=new Set(["a","an","the","to","for","of","on","in","at","by","from","with","and","or","is","are","do","does","did","can","i","me","my","we","our","you","your","it","this","that","what","how","why","where","when"]);
 
@@ -438,6 +442,17 @@ function addMessage(text,sender,relatedQuestions=[]){
   chatBox.scrollTop=chatBox.scrollHeight;
 }
 
+function buildWhatsAppUrl(){
+  const currentTypedQuestion=userInput?userInput.value.trim():"";
+  const context=currentTypedQuestion||lastUserQuestion;
+  const message=context?`${WHATSAPP_DEFAULT_MESSAGE} My question is: ${context}`:WHATSAPP_DEFAULT_MESSAGE;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+function openWhatsAppSupport(){
+  window.open(buildWhatsAppUrl(),"_blank","noopener,noreferrer");
+}
+
 function updateAssistantStatus(message){
   const status=document.getElementById("assistant-status");
   if(status) status.textContent=message;
@@ -466,6 +481,7 @@ async function loadQnA(){
 function askQuestion(question){
   const cleaned=question.trim();
   if(!cleaned) return;
+  lastUserQuestion=cleaned;
   addMessage(cleaned,"user");
   const match=getBestEntry(cleaned);
   if(match.ambiguous){
@@ -582,12 +598,16 @@ document.addEventListener("DOMContentLoaded",async()=>{
   await loadQnA();
   initializeVoiceInput();
   const chatForm=document.getElementById("chat-form");
+  const whatsappSupportButton=document.getElementById("whatsapp-support-button");
   userInput=document.getElementById("user-input");
   document.querySelectorAll(".suggestion-chip").forEach(button=>button.addEventListener("click",()=>{
     const question=button.getAttribute("data-question")||"";
     askQuestion(question);
     if(userInput) userInput.focus();
   }));
+  if(whatsappSupportButton){
+    whatsappSupportButton.addEventListener("click",openWhatsAppSupport);
+  }
   if(chatForm&&userInput){
     chatForm.addEventListener("submit",event=>{
       event.preventDefault();
