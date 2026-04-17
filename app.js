@@ -9,13 +9,18 @@ const STOP_WORDS=new Set(["a","an","the","to","for","of","on","in","at","by","fr
 const PHRASE_SYNONYMS=[
   ["pois","person of interest"],
   ["poi","person of interest"],
+  ["person of interests","persons of interest"],
   ["aml deed","deed"],
   ["aml case","deed"],
+  ["aml file","deed"],
+  ["object file","deed"],
   ["fiu report","report"],
   ["fiu package","report package"],
+  ["report package","fiu report package"],
   ["screening url","link"],
   ["screening link","link"],
   ["digital journey","journey"],
+  ["compliance journey","journey"],
   ["shufti pro","shufti"],
   ["three dot menu","options menu"],
   ["ellipsis menu","options menu"],
@@ -25,27 +30,38 @@ const PHRASE_SYNONYMS=[
   ["poi url","person of interest link"],
   ["poi link","person of interest link"],
   ["send again","resend"],
-  ["copy again","resend"]
+  ["copy again","resend"],
+  ["proof zip","proof images zip"],
+  ["proof images","evidence"],
+  ["pdf file","pdf report"],
+  ["view all pois","persons of interest page"],
+  ["poi list","persons of interest page"],
+  ["action buttons","actions"],
+  ["update date","last updated"],
+  ["sign in","login"],
+  ["single sign on","sso"]
 ];
 
 const TOKEN_SYNONYMS={
   poi:["person","interest"],
   pois:["person","interest"],
-  deed:["aml","case","matter"],
+  person:["interest","poi"],
+  deed:["aml","case","matter","file","object"],
   aml:["deed","compliance"],
   fiu:["report","reporting"],
-  zip:["package","download"],
+  zip:["package","download","archive"],
   mail:["email","send"],
   email:["mail","send"],
   sync:["refresh","update","shufti"],
   refresh:["sync","update"],
   reported:["report","reported"],
-  findings:["finding","hit","review"],
-  approved:["clear","passed"],
-  pending:["waiting","incomplete"],
+  findings:["finding","hit","review","pep"],
+  finding:["findings","hit","pep"],
+  approved:["clear","passed","view"],
+  pending:["waiting","incomplete","not","finished"],
   docs:["documents","files"],
   doc:["document","file"],
-  upload:["add","file","attachment"],
+  upload:["add","file","attachment","image"],
   attachments:["files","documents"],
   action:["button","icon","menu"],
   actions:["buttons","icons","menu"],
@@ -53,10 +69,29 @@ const TOKEN_SYNONYMS={
   customer:["client"],
   customers:["clients"],
   url:["link","copy"],
-  link:["url","copy"],
+  link:["url","copy","journey"],
   resend:["again","repeat","copy","link"],
   again:["resend","repeat"],
-  copy:["link","url"]
+  copy:["link","url","clipboard"],
+  evidence:["proof","images","zip"],
+  proof:["evidence","images","zip"],
+  report:["fiu","pdf","email"],
+  sso:["login","sign","identity"],
+  login:["sign","access","dashboard"],
+  audit:["trail","evidence","retention"],
+  trail:["audit","history","evidence"],
+  reminder:["notifications","emails"],
+  notifications:["reminders","silence","bell"],
+  bell:["notifications","silence"],
+  pdf:["report","download"],
+  view:["details","open"],
+  image:["photo","png","jpg","upload"],
+  jpg:["image","upload"],
+  png:["image","upload"],
+  sms:["message","text","link"],
+  whatsapp:["message","link","send"],
+  browser:["chrome","supported"],
+  chrome:["browser","recommended"]
 };
 
 const INTENT_PAIRS=[
@@ -66,6 +101,8 @@ const INTENT_PAIRS=[
   ["download","report"],
   ["download","documents"],
   ["download","package"],
+  ["download","pdf"],
+  ["download","proof"],
   ["silence","notifications"],
   ["sync","shufti"],
   ["create","deed"],
@@ -73,7 +110,23 @@ const INTENT_PAIRS=[
   ["status","approved"],
   ["status","reported"],
   ["status","findings"],
-  ["status","pending"]
+  ["status","pending"],
+  ["login","dashboard"],
+  ["poi","actions"],
+  ["view","details"]
+];
+
+const STAGE_RULES=[
+  {stage:"login",tokens:["login","sign","dashboard","sso","continue"]},
+  {stage:"deeds",tokens:["deed","create","image","title","description","deeds"]},
+  {stage:"poi",tokens:["person","interest","poi","label","buyer","seller","beneficiary","director"]},
+  {stage:"link",tokens:["link","url","copy","journey","sms","whatsapp","email"]},
+  {stage:"outcomes",tokens:["approved","pending","findings","pep","view","status"]},
+  {stage:"reporting",tokens:["fiu","report","pdf","proof","zip","submission","reported"]},
+  {stage:"poi-page",tokens:["page","filter","actions","columns","update","date","persons","interest"]},
+  {stage:"reminders",tokens:["reminder","notifications","silence","bell","deadline","daily"]},
+  {stage:"troubleshooting",tokens:["troubleshoot","problem","not","open","upload","refresh","browser","chrome"]},
+  {stage:"definitions",tokens:["meaning","define","definition","what","stands","abbreviation","audit","trail"]}
 ];
 
 function normalize(text){
@@ -141,11 +194,7 @@ function editDistance(a,b){
   for(let i=1;i<=left;i+=1){
     for(let j=1;j<=right;j+=1){
       const cost=a[i-1]===b[j-1]?0:1;
-      dp[i][j]=Math.min(
-        dp[i-1][j]+1,
-        dp[i][j-1]+1,
-        dp[i-1][j-1]+cost
-      );
+      dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+cost);
     }
   }
   return dp[left][right];
@@ -227,11 +276,58 @@ function scoreIntentPairs(queryTokens,targetTokens){
   return score;
 }
 
+function detectStages(queryTokens){
+  const matches=[];
+  for(const rule of STAGE_RULES){
+    const hitCount=rule.tokens.filter(token=>queryTokens.includes(token)).length;
+    if(hitCount>0) matches.push({stage:rule.stage,count:hitCount});
+  }
+  matches.sort((a,b)=>b.count-a.count);
+  return matches.map(item=>item.stage);
+}
+
+function getEntryStages(entry){
+  const corpus=buildEntryCorpus(entry);
+  return detectStages(corpus.tokens);
+}
+
+function stageCompatibilityBoost(queryStages,entryStages){
+  if(!queryStages.length||!entryStages.length) return 0;
+  let score=0;
+  if(queryStages[0]===entryStages[0]) score+=26;
+  const overlap=queryStages.filter(stage=>entryStages.includes(stage)).length;
+  score+=overlap*10;
+  return score;
+}
+
+function scoreActionPriority(queryTokens,entryTokens){
+  const actionSignals=["button","icon","actions","notifications","bell","pdf","report","sync","documents","download","view"];
+  const queryActionHits=actionSignals.filter(token=>queryTokens.includes(token));
+  if(!queryActionHits.length) return 0;
+  const matchingHits=queryActionHits.filter(token=>entryTokens.includes(token)).length;
+  return matchingHits*12;
+}
+
+function scoreDefinitionsBoost(query,queryTokens,entry){
+  const definitionSignals=["meaning","define","definition","stands","abbreviation","what is","what does"];
+  const isDefinitionQuery=definitionSignals.some(signal=>query.includes(signal))||queryTokens.some(token=>["audit","trail","pending","approved","findings","poi","fiu","zip","pdf","sso","url"].includes(token));
+  if(!isDefinitionQuery) return 0;
+  const corpus=buildEntryCorpus(entry);
+  let score=0;
+  const definitionTerms=["pending","approved","findings","audit","trail","poi","fiu","zip","pdf","sso","url","evidence","view","update","date","copy","link"];
+  for(const term of definitionTerms){
+    if(queryTokens.includes(term)&&corpus.tokens.includes(term)) score+=9;
+  }
+  return score;
+}
+
 function scoreMatch(userQuestion,entry){
   const query=normalizeWithSynonyms(userQuestion);
   const queryTokens=tokenize(userQuestion);
   const queryNgrams=getCharacterNgrams(userQuestion);
   const corpus=buildEntryCorpus(entry);
+  const queryStages=detectStages(queryTokens);
+  const entryStages=getEntryStages(entry);
   let score=0;
 
   for(const question of corpus.questionNormals){
@@ -254,6 +350,10 @@ function scoreMatch(userQuestion,entry){
   score+=strongMatchCount*8;
   score+=coverage*40;
 
+  score+=stageCompatibilityBoost(queryStages,entryStages);
+  score+=scoreActionPriority(queryTokens,corpus.tokens);
+  score+=scoreDefinitionsBoost(query,queryTokens,entry);
+
   if(queryTokens.length<=4){
     const shortIntentHits=queryTokens.filter(token=>corpus.tokens.includes(token)).length;
     score+=shortIntentHits*5;
@@ -263,23 +363,25 @@ function scoreMatch(userQuestion,entry){
   return score;
 }
 
+function getTopMatches(question,limit=3){
+  const ranked=qnaData.map(entry=>({entry,score:scoreMatch(question,entry)})).sort((a,b)=>b.score-a.score);
+  return ranked.slice(0,limit);
+}
+
 function getBestEntry(question){
-  let best=null;
-  let bestScore=0;
-  let secondBest=0;
-  for(const entry of qnaData){
-    const score=scoreMatch(question,entry);
-    if(score>bestScore){
-      secondBest=bestScore;
-      bestScore=score;
-      best=entry;
-    }else if(score>secondBest){
-      secondBest=score;
-    }
+  const ranked=getTopMatches(question,3);
+  const best=ranked[0];
+  const second=ranked[1];
+  if(!best||best.score<26) return {entry:null,ambiguous:false,options:[]};
+  const ambiguous=second&&best.score<second.score*1.12&&best.score<58;
+  if(ambiguous){
+    return {
+      entry:null,
+      ambiguous:true,
+      options:ranked.filter(item=>item.score>=26).map(item=>item.entry.questions[0]).slice(0,3)
+    };
   }
-  if(!best||bestScore<24) return null;
-  if(secondBest&&bestScore<secondBest*1.12&&bestScore<52) return null;
-  return best;
+  return {entry:best.entry,ambiguous:false,options:[]};
 }
 
 function getRelatedQuestions(currentEntry){
@@ -289,9 +391,7 @@ function getRelatedQuestions(currentEntry){
     if(entry.id===currentEntry.id) continue;
     const sameCategory=entry.category===currentEntry.category;
     const sharedKeywords=(entry.keywords||[]).filter(keyword=>(currentEntry.keywords||[]).includes(keyword)).length;
-    if(sameCategory||sharedKeywords>0){
-      related.push(entry.questions[0]);
-    }
+    if(sameCategory||sharedKeywords>0) related.push(entry.questions[0]);
     if(related.length===3) break;
   }
   if(related.length<3){
@@ -367,8 +467,13 @@ function askQuestion(question){
   const cleaned=question.trim();
   if(!cleaned) return;
   addMessage(cleaned,"user");
-  const bestEntry=getBestEntry(cleaned);
-  const answer=bestEntry?bestEntry.answer:"I could not find a clear answer in the current ComplyWhistle help content yet. Please contact your administrator or AXIOMA for assistance.";
+  const match=getBestEntry(cleaned);
+  if(match.ambiguous){
+    addMessage("I found a few close topics. Pick the one that matches what you mean.","bot",match.options);
+    return;
+  }
+  const bestEntry=match.entry;
+  const answer=bestEntry?bestEntry.answer:"I could not find a clear answer in the current ComplyWhistle help content yet. Please try asking in a different way or contact your administrator or AXIOMA for assistance.";
   const related=bestEntry?getRelatedQuestions(bestEntry):[];
   addMessage(answer,"bot",related);
 }
