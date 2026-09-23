@@ -443,10 +443,7 @@ function addMessage(text,sender,relatedQuestions=[]){
 }
 
 function buildWhatsAppUrl(){
-  const currentTypedQuestion=userInput?userInput.value.trim():"";
-  const context=currentTypedQuestion||lastUserQuestion;
-  const message=context?`${WHATSAPP_DEFAULT_MESSAGE} My question is: ${context}`:WHATSAPP_DEFAULT_MESSAGE;
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_DEFAULT_MESSAGE)}`;
 }
 
 function openWhatsAppSupport(){
