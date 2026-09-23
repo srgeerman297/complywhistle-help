@@ -514,10 +514,8 @@ function initializeVoiceInput(){
   recognition.continuous=false;
   recognition.maxAlternatives=1;
   let finalTranscript="";
-  let shouldAutoSubmit=false;
   recognition.onstart=()=>{
     finalTranscript="";
-    shouldAutoSubmit=false;
     setMicState(true);
     updateAssistantStatus("Listening... Speak your question now.");
   };
@@ -527,7 +525,6 @@ function initializeVoiceInput(){
       const transcript=event.results[i][0].transcript.trim();
       if(event.results[i].isFinal){
         finalTranscript=`${finalTranscript} ${transcript}`.trim();
-        shouldAutoSubmit=true;
       }else{
         interim=`${interim} ${transcript}`.trim();
       }
@@ -537,7 +534,6 @@ function initializeVoiceInput(){
   };
   recognition.onerror=event=>{
     setMicState(false);
-    shouldAutoSubmit=false;
     let message="Voice input could not be started. Please try again.";
     switch(event.error){
       case"not-allowed":
@@ -559,17 +555,9 @@ function initializeVoiceInput(){
     updateAssistantStatus(message);
   };
   recognition.onend=()=>{
-    const transcript=userInput.value.trim();
     setMicState(false);
-    if(shouldAutoSubmit&&transcript){
-      updateAssistantStatus("Voice input captured. Sending your question...");
-      askQuestion(transcript);
-      userInput.value="";
-      updateAssistantStatus("Voice input ready. Click Mic to speak your question.");
-      return;
-    }
     if(!userInput.value.trim()) updateAssistantStatus("Voice input ready. Click Mic to speak your question.");
-    else updateAssistantStatus("Voice captured. You can edit the text or click Send.");
+    else updateAssistantStatus("Voice captured. Review the text, then click Send.");
   };
   micButton.addEventListener("click",async()=>{
     if(!recognition) return;
