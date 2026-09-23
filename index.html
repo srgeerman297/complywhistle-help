@@ -62,9 +62,14 @@
           <button type="button" class="suggestion-chip" data-question="What does Pending mean?">Pending status</button>
         </div>
 
+        <div id="safe-use-notice" class="safe-use-notice" role="note" aria-label="Safe use notice">
+          <strong>Safe use:</strong>
+          <span>Use Agatha for ComplyWhistle guidance only. Do not enter or speak client names, identification numbers, transaction details, source-of-funds information, passwords, API keys, or other confidential case data. Typed questions are matched against the help content in your browser; voice input may use your browser or device speech service.</span>
+        </div>
+
         <form id="chat-form" class="chat-form">
           <label for="user-input" class="sr-only">Ask a question</label>
-          <input type="text" id="user-input" placeholder="Ask Agatha AI (Beta) a question..." autocomplete="off" required />
+          <input type="text" id="user-input" placeholder="Ask Agatha AI (Beta) a question..." autocomplete="off" aria-describedby="safe-use-notice" required />
           <button type="button" id="mic-button" class="mic-button" aria-label="Use voice input" aria-pressed="false" title="Use voice input">Mic</button>
           <button type="submit" class="send-button">Send</button>
         </form>
